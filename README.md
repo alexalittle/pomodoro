@@ -1,5 +1,5 @@
 # pomodoro
- A pomodoro app in Python and Tkinter
+ A pomodoro app in Python3 and Tkinter
  <br><br>
  Extends https://github.com/alexalittle/timer
  <br>
