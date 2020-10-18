@@ -14,6 +14,7 @@ class App:
 		# set attributes for start time, current time
 		self.start_time = 0
 		self.current_time = 0
+		self.is_paused = False
 
 		# create variable to be used by start & stop timer functions
 		# stores the current call to tkinter's "after" module
@@ -34,7 +35,7 @@ class App:
 		control_frame.pack(side = tk.TOP)
 
 		# create start, stop, skip, reset, clear buttons
-		self.start_btn = tk.Button(control_frame, text="Start", command = self.do_pomodoro)
+		self.start_btn = tk.Button(control_frame, text="Start", command = self.start_handler)
 		self.start_btn.pack(side = tk.LEFT)
 		self.stop_btn = tk.Button(control_frame, text="Stop", command = self.stop_timer)
 		self.stop_btn.pack(side = tk.LEFT)
@@ -52,9 +53,18 @@ class App:
 		self.timer_display["text"] = self.sec_to_min(self.current_time)
 
 	def start_handler(self):
-		""" Helper function to prevent the user from triggering "Start" more than once """
+		""" Helper function.
+			Prevents the user from triggering "Start" more than once.
+			Differentiates between a fresh start and a start after a pause.
+		"""
 		if not self.callback:
-			self.start_timer()
+			if self.is_paused:
+				self.is_paused = False
+				self.start_btn["text"] = "Start"
+				self.start_timer()
+			else:
+				self.set_pomodoro()
+				self.start_timer()
 
 	def start_timer(self):
 		""" Starts the timer."""
@@ -67,20 +77,22 @@ class App:
 				root.bell()
 				self.pomodoro_status += 1
 				self.callback = None
-				self.do_pomodoro()
+				self.set_pomodoro()
 
 	def stop_timer(self):
 		""" Stops the timer."""
 		if self.callback:
 			root.after_cancel(self.callback)
 			self.callback = None
+			self.is_paused = True
 			self.start_btn["text"] = "Resume"
 
 	def skip_session(self):
-		root.after_cancel(self.callback)
-		self.callback = None
+		if self.callback:
+			root.after_cancel(self.callback)
+			self.callback = None
 		self.pomodoro_status += 1
-		self.do_pomodoro()
+		self.set_pomodoro()
 
 	def restart_timer(self):
 		""" Stops the timer if running and resets it to the start time value."""
@@ -106,7 +118,7 @@ class App:
 			output = str(calculation[1])
 		return str(calculation[0]) + ":" + output
 
-	def do_pomodoro(self):
+	def set_pomodoro(self):
 		if self.pomodoro_status % 2 == 1:
 			# odd numbers = do pomodoro work time
 			timer_len = self.work_time
@@ -124,7 +136,6 @@ class App:
 		self.current_time = timer_len
 		self.title["text"] = title_value
 		self.update_display()
-		self.start_handler()
 
 root = tk.Tk()
 root.geometry("300x200")
