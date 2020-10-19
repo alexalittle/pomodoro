@@ -9,9 +9,9 @@ class App:
 		self.master = master
 
 		# pomodoro settings
-		self.work_time = 5 #25 * 60
-		self.short_break_time = 5 # 5 * 60
-		self.long_break_time = 5 # 25 * 60
+		self.work_time = 25 * 60
+		self.short_break_time = 5 * 60
+		self.long_break_time = 25 * 60
 		self.pomodoro_status = 1
 
 		# default display attributes - background color, window size
@@ -22,7 +22,7 @@ class App:
 		# set attributes for start time, current time
 		self.start_time = 0
 		self.current_time = 0
-		self.is_paused = False
+		self.user_paused = False
 
 		# create variable to be used by start & stop timer functions
 		# stores the current call to tkinter's "after" module
@@ -36,7 +36,7 @@ class App:
 		# set up main display
 		self.title = tk.Label(self.title_frame, text = "Pomodoro Timer", font=(None, 16), background=self.color, foreground='white')
 		self.title.pack()
-		self.timer_display = tk.Label(self.title_frame, text = "25:00", font=(None, 24), background=self.color, foreground='white')
+		self.timer_display = tk.Label(self.title_frame, text = self.sec_to_min(self.work_time), font=(None, 24), background=self.color, foreground='white')
 		self.timer_display.pack()
 
 		# create section for control buttons
@@ -73,8 +73,8 @@ class App:
 			Differentiates between a fresh start and a start after a pause.
 		"""
 		if not self.callback:
-			if self.is_paused:
-				self.is_paused = False
+			if self.user_paused:
+				self.user_paused = False
 				self.start_btn["text"] = "Start"
 				self.start_timer()
 			else:
@@ -99,7 +99,7 @@ class App:
 		if self.callback:
 			root.after_cancel(self.callback)
 			self.callback = None
-			self.is_paused = True
+			self.user_paused = True
 			self.start_btn["text"] = "Resume"
 
 	def skip_session(self):
@@ -120,14 +120,11 @@ class App:
 	def clear_timer(self):
 		""" Resets all pomodoro values to initial states."""
 		self.stop_timer()
+		self.user_paused = False
 		self.pomodoro_status = 1
 		self.start_btn["text"] = "Start"
 		self.start_time = self.work_time
 		self.update_display(self.start_time, "Pomodoro Timer", "black")
-		# temporary workaround:
-		""" after clear function, color & title changes don't work correctly when start is pressed again
-			==> this is caused by a problem in the is_paused loop logic of start_handler()"""
-		self.is_paused = False
 
 	def sec_to_min(self, seconds):
 		""" Given input in seconds, returns equivalent value in minutes (0:00 string)."""
