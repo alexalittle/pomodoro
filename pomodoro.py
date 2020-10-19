@@ -14,9 +14,9 @@ class App:
 		self.long_break_time = 25 * 60
 		self.pomodoro_status = 1
 
-		# default display attributes - background color, window size
+		# default display attributes - background color, window size, icon
 		self.color = "black"
-		master['bg'] = self.color
+		master["bg"] = self.color
 		master.geometry("300x200")
 
 		# set attributes for start time, current time
@@ -31,12 +31,12 @@ class App:
 		# create section for main display
 		self.title_frame = tk.Frame(master)
 		self.title_frame.pack(side = tk.TOP)
-		self.title_frame['bg'] = self.color
+		self.title_frame["bg"] = self.color
 
 		# set up main display
-		self.title = tk.Label(self.title_frame, text = "Pomodoro Timer", font=(None, 16), background=self.color, foreground='white')
+		self.title = tk.Label(self.title_frame, text = "Pomodoro Timer", font=(None, 16), bg=self.color, fg="white")
 		self.title.pack()
-		self.timer_display = tk.Label(self.title_frame, text = self.sec_to_min(self.work_time), font=(None, 24), background=self.color, foreground='white')
+		self.timer_display = tk.Label(self.title_frame, text = self.sec_to_min(self.work_time), font=(None, 24), bg=self.color, fg="white")
 		self.timer_display.pack()
 
 		# create section for control buttons
@@ -62,15 +62,15 @@ class App:
 	def update_colors(self, master, color):
 		""" Updates the background color of the app window."""
 		self.color = color
-		self.master['bg'] = self.color
-		self.title_frame["background"] = self.color
-		self.title['bg'] = self.color
-		self.timer_display['bg'] = self.color
+		self.master["bg"] = self.color
+		self.title_frame["bg"] = self.color
+		self.title["bg"] = self.color
+		self.timer_display["bg"] = self.color
 
 	def start_handler(self):
 		""" Helper function.
 			Prevents the user from triggering "Start" more than once.
-			Differentiates between a fresh start and a start after a pause.
+			Differentiates between a fresh start and a start after the user paused.
 		"""
 		if not self.callback:
 			if self.user_paused:
@@ -127,20 +127,17 @@ class App:
 		self.update_display(self.start_time, "Pomodoro Timer", "black")
 
 	def sec_to_min(self, seconds):
-		""" Given input in seconds, returns equivalent value in minutes (0:00 string)."""
-		calculation = divmod(seconds, 60)
-		if calculation[1] < 10:
-			output = "0" + str(calculation[1])
-		else:
-			output = str(calculation[1])
-		return str(calculation[0]) + ":" + output
+		""" Given input in seconds, returns equivalent value as a 0:00 string."""
+		result = divmod(seconds, 60)
+		return str(result[0]) + ":" + "{:02d}".format(result[1])
 
 	def set_pomodoro(self):
+		""" Sets up the timer and display for a pomodoro session. """
 		if self.pomodoro_status % 2 == 1:
 			# odd numbers = do pomodoro work time
 			timer_len = self.work_time
 			title_value = "Work Session"
-			color = "red"
+			color = "#b30000" # brick red
 		elif self.pomodoro_status % 8 == 0:
 			# after 4 work sessions and 3 breaks, take a long break
 			timer_len = self.long_break_time
@@ -155,6 +152,7 @@ class App:
 		self.update_display(timer_len, title_value, color)
 
 	def update_display(self, timer_len, title_value, color):
+		""" Helper function to update the app window - current time, title label, timer, background color """
 		self.current_time = timer_len
 		self.title["text"] = title_value
 		self.update_timer()
@@ -162,6 +160,7 @@ class App:
 
 root = tk.Tk()
 root.title("Pomodoro Timer")
+root.iconphoto(False, tk.PhotoImage(file="tomato.png"))
 app = App(root)
 
 root.mainloop()
